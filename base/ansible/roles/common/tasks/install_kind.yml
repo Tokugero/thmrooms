@@ -1,0 +1,42 @@
+- name: Download kind
+  get_url:
+    url: "{{ kind_url }}"
+    dest: /usr/local/bin/kind
+    mode: 0755
+- name: Copy cluster config
+  copy:
+    src: clusterconfig.yml
+    dest: /tmp/clusterconfig.yml
+- name: Destroy cluster
+  command: kind delete cluster --name {{ cluster_name }}
+  ignore_errors: true
+- name: Create cluster
+  command: kind create cluster --config /tmp/clusterconfig.yml --name {{ cluster_name }}
+- name: Present kubeconfig to output
+  command: kind get kubeconfig --name {{ cluster_name }}
+  register: kubeconfig
+- name: Output kubeconfig
+  debug:
+    msg: "{{ kubeconfig.stdout }}"
+- name: Clean kubeconfig
+  delegate_to: localhost
+  file:
+    path: ~/.kube/config.thmkind
+    state: absent
+- name: Copy kubeconfig to local
+  delegate_to: localhost
+  copy:
+    content: "{{ kubeconfig.stdout }}"
+    dest: ~/.kube/config.thmkind
+- name: Replace IP
+  delegate_to: localhost
+  replace:
+    path: ~/.kube/config.thmkind
+    regexp: "0.0.0.0"
+    replace: "{{ ansible_default_ipv4.address }}"
+- name: Replace CA
+  delegate_to: localhost
+  replace:
+    path: ~/.kube/config.thmkind
+    regexp: "certificate-authority-data.*"
+    replace: "insecure-skip-tls-verify: true"

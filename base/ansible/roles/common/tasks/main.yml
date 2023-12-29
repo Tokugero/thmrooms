@@ -1,0 +1,20 @@
+---
+- hosts: all
+  vars:
+    kind_version: "v0.20.0"
+    kind_arch: "amd64"
+    kind_os: "linux"
+    kind_url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-{{ kind_os }}-{{ kind_arch }}"
+    cluster_name: "thm"
+  tasks:
+    - name: Install Docker
+      include_tasks: install_docker.yml
+    - name: Install Cluster
+      include_tasks: install_kind.yml
+    - name: copy public key
+      copy:
+        src: ~/.ssh/id_rsa.pub
+        dest: /home/ubuntu/.ssh/authorized_keys
+        owner: ubuntu
+        group: ubuntu
+        mode: 0600
