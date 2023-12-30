@@ -13,6 +13,9 @@
     - name: Install Cluster
       include_tasks: install_kind.yml
 
+    - name: Setup Local Registry
+      include_tasks: setup_local_registry.yml
+
     - name: copy public key
       copy:
         src: ~/.ssh/id_rsa.pub
