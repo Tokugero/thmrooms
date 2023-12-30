@@ -1,3 +1,16 @@
+- name: Install pip packages
+  become: true
+  pip:
+    name:
+      - kubernetes
+    state: present
+
+#############
+#
+# Get Kind started
+#
+#############
+
 - name: Download kind
   become: true
   get_url:
@@ -6,8 +19,9 @@
     mode: 0755
 
 - name: Copy cluster config
-  copy:
-    src: clusterconfig.yml
+  become: true
+  template:
+    src: clusterconfig.yml.j2
     dest: /tmp/clusterconfig.yml
 
 - name: Destroy cluster
@@ -24,6 +38,12 @@
   command: kind get kubeconfig --name {{ cluster_name }}
   register: kubeconfig
 
+#############
+#
+# Get kubeconfig on local machine
+#
+#############
+
 - name: Clean kubeconfig
   delegate_to: localhost
   file:
@@ -35,6 +55,12 @@
   copy:
     content: "{{ kubeconfig.stdout }}"
     dest: ~/.kube/config.thmkind
+
+- name: Copy kubeconfig to remote for future scripts
+  become: true
+  copy:
+    content: "{{ kubeconfig.stdout }}"
+    dest: /root/.kube/config
 
 - name: Replace IP
   delegate_to: localhost

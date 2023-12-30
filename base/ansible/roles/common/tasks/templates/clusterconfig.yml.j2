@@ -13,3 +13,8 @@ networking:
   apiServerPort: 6443
   podSubnet: "172.20.0.0/16"
   serviceSubnet: "172.21.0.0/16"
+  ipFamily: ipv4
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    config_path = "/etc/containerd/certs.d"

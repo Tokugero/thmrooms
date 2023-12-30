@@ -1,0 +1,8 @@
+# remove the following:
+
+# bash_history
+# /tmp/*
+# apt cache
+# unnecessary logs
+# kubectl binaries
+# kubectl configs

@@ -11,6 +11,14 @@
       - ca-certificates
       - curl
       - gnupg
+      - python3-pip
+
+- name: Install pip packages
+  become: true
+  pip:
+    name:
+      - requests
+    state: present
 
 - name: Add keyrings
   become: true
@@ -44,3 +52,10 @@
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
+
+- name: Add user to docker group
+  become: true
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
