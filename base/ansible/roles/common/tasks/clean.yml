@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: remove user bash history
+      file:
+        src: /dev/null
+        dest: /home/ubuntu/.bash_history
+        state: link
+
+    - name: remove root bash history
+      file:
+        src: /dev/null
+        dest: /root/.bash_history
+        state: link
+
+    - name: remove apt cache
+      apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: remove root kubeconfig
+      file:
+        path: /root/.kube
+        state: absent
+
+    - name: remove public key
+      file:
+        path: /home/ubuntu/.ssh
+        state: absent
+# Keep removing stuff as it's found
+# Add instructionals to sysprep for THM deployment

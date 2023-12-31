@@ -1,8 +1,2 @@
-# remove the following:
-
-# bash_history
-# /tmp/*
-# apt cache
-# unnecessary logs
-# kubectl binaries
-# kubectl configs
+---
+- ansible.builtin.import_playbook: roles/common/tasks/clean.yml
