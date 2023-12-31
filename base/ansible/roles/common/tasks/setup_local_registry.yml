@@ -1,5 +1,4 @@
 - name: Start registry if not running
-  become: true
   community.docker.docker_container:
     image: registry:2
     name: "{{ cluster_name }}-registry"
@@ -12,25 +11,21 @@
 # - name: patch local registry cluster config
 
 - name: Get containers
-  become: true
   command: kind get nodes --name {{ cluster_name }}
   register: kind_nodes
 
 - name: Create nodes folders
-  become: true
   community.docker.docker_container_exec:
     container: "{{ item.1 }}"
     command: /bin/mkdir -p "/etc/containerd/certs.d/localhost:5000"
   with_indexed_items: "{{ kind_nodes.stdout_lines }}"
 
 - name: Copy hosts.toml patch
-  become: true
   template:
     src: hosts.toml.j2
     dest: /tmp/hosts.toml
 
 - name: Patch hosts.toml
-  become: true
   community.docker.docker_container_copy_into:
     container: "{{ item.1 }}"
     path: /tmp/hosts.toml
@@ -38,7 +33,6 @@
   with_indexed_items: "{{ kind_nodes.stdout_lines }}"
 
 - name: Move container to kind bridge
-  become: true
   community.docker.docker_network:
     name: kind
     connected:
@@ -46,7 +40,6 @@
     appends: true
 
 - name: Configure local registry in cluster
-  become: true
   kubernetes.core.k8s:
     state: present
     definition:
@@ -61,7 +54,6 @@
           help: https://kind.sigs.k8s.io/docs/user/local-registry/
 
 - name: Reload containerd
-  become: true
   community.docker.docker_container_exec:
     container: "{{ item.1 }}"
     command: systemctl restart containerd

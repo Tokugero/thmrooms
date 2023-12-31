@@ -1,5 +1,4 @@
 - name: Install pip packages
-  become: true
   pip:
     name:
       - kubernetes
@@ -12,29 +11,24 @@
 #############
 
 - name: Download kind
-  become: true
   get_url:
     url: "{{ kind_url }}"
     dest: /usr/local/bin/kind
     mode: 0755
 
 - name: Copy cluster config
-  become: true
   template:
     src: clusterconfig.yml.j2
     dest: /tmp/clusterconfig.yml
 
 - name: Destroy cluster
-  become: true
   command: kind delete cluster --name {{ cluster_name }}
   ignore_errors: true
 
 - name: Create cluster
-  become: true
   command: kind create cluster --config /tmp/clusterconfig.yml --name {{ cluster_name }}
 
 - name: Present kubeconfig to output
-  become: true
   command: kind get kubeconfig --name {{ cluster_name }}
   register: kubeconfig
 
@@ -45,24 +39,26 @@
 #############
 
 - name: Clean kubeconfig
+  become: false
   delegate_to: localhost
   file:
     path: ~/.kube/config.thmkind
     state: absent
 
 - name: Copy kubeconfig to local
+  become: false
   delegate_to: localhost
   copy:
     content: "{{ kubeconfig.stdout }}"
     dest: ~/.kube/config.thmkind
 
 - name: Copy kubeconfig to remote for future scripts
-  become: true
   copy:
     content: "{{ kubeconfig.stdout }}"
     dest: /root/.kube/config
 
 - name: Replace IP
+  become: false
   delegate_to: localhost
   replace:
     path: ~/.kube/config.thmkind
@@ -70,6 +66,7 @@
     replace: "{{ ansible_default_ipv4.address }}"
 
 - name: Replace CA
+  become: false
   delegate_to: localhost
   replace:
     path: ~/.kube/config.thmkind

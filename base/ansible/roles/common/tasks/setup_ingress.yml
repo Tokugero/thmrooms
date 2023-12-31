@@ -1,0 +1,10 @@
+- name: Get nginx manifest
+  get_url:
+    url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+    dest: /tmp/nginx-ingress.yaml
+    mode: 0644
+
+- name: Apply nginx manifest
+  kubernetes.core.k8s:
+    src: /tmp/nginx-ingress.yaml
+    state: present

@@ -1,11 +1,9 @@
 - name: Update apt
-  become: true
   apt:
     update_cache: yes
     cache_valid_time: 3600
 
 - name: Install packages
-  become: true
   apt:
     pkg:
       - ca-certificates
@@ -14,37 +12,30 @@
       - python3-pip
 
 - name: Install pip packages
-  become: true
   pip:
     name:
       - requests
     state: present
 
-- name: Add keyrings
-  become: true
-  command: install -m 0755 -d /etc/apt/keyrings
+- name: Add apt_key
+  block:
+    - name: Docker Repo
+      get_url: 
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
 
-- name: get keyring
-  become: true
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add repository
-  become: true
-  apt_repository:
-    filename: docker.list
-    repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu focal stable
-    state: present
+    - name: Add repository
+      apt_repository:
+        filename: docker.list
+        repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu focal stable
+        state: present
 
 - name: Update apt
-  become: true
   apt:
     update_cache: yes
     cache_valid_time: 3600
 
 - name: Install packages
-  become: true
   apt:
     pkg:
       - docker-ce
@@ -54,7 +45,6 @@
       - docker-compose-plugin
 
 - name: Add user to docker group
-  become: true
   user:
     name: "{{ ansible_user }}"
     groups: docker
