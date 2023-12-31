@@ -1,0 +1,38 @@
+- name: Get list of configs
+  become: false
+  delegate_to: localhost
+  find:
+    paths: "../../../../build/cluster"
+  register: configs
+
+- name: Show output
+  debug:
+    msg: "{{ configs.files | list }}"
+
+- name: Copy configs
+  copy:
+    src: "{{ item.path }}"
+    dest: "/tmp/clusterconf/"
+  with_items: "{{ configs.files }}"
+
+- name: Attempt to clean out old configs
+  kubernetes.core.k8s:
+    src: "/tmp/clusterconf/{{ item.path | basename }}"
+    state: absent
+    kubeconfig: "/root/.kube/config"
+    force: true
+  with_items: "{{ configs.files | list }}"
+  ignore_errors: true
+
+- name: Apply configs
+  kubernetes.core.k8s:
+    src: "/tmp/clusterconf/{{ item.path | basename }}"
+    state: present
+    kubeconfig: "/root/.kube/config"
+    force: true
+  with_items: "{{ configs.files | list }}"
+
+- name: Remove configs
+  file:
+    path: "/tmp/clusterconf"
+    state: absent

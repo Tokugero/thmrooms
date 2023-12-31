@@ -1,0 +1,38 @@
+# Build images on remote machine to maximize compatibility of this project. 
+- name: Get list of images
+  become: false
+  delegate_to: localhost
+  find:
+    paths: "../../../../build/service"
+    file_type: directory
+  register: services
+
+- name: Copy build directories
+  copy:
+    src: "{{ item.path }}"
+    dest: "/tmp/build/"
+  with_items: "{{ services.files }}"
+
+- name: Build images
+  community.docker.docker_image:
+    name: "localhost:5000/{{ item.path | basename }}"
+    build:
+      path: "/tmp/build/{{ item.path | basename }}"
+    force_source: true
+    state: present
+    tag: ansible
+    source: build
+    push: true
+  with_items: "{{ services.files | list }}"
+
+- name: Remove built images
+  community.docker.docker_prune:
+    images: yes
+    images_filters:
+      dangling: false
+    builder_cache: true
+
+- name: Remove build directory
+  file:
+    path: "/tmp/build"
+    state: absent

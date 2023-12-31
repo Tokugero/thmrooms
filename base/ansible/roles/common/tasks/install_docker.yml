@@ -17,6 +17,11 @@
       - requests
     state: present
 
+- name: Add keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+
 - name: Add apt_key
   block:
     - name: Docker Repo

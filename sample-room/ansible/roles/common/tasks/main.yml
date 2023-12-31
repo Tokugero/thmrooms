@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Prepare Images
+      include_tasks: prepare_images.yml
+
+    - name: Apply Specs
+      include_tasks: apply_specs.yml
