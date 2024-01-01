@@ -17,6 +17,9 @@ spec:
       - name: frontend
         image: localhost:5000/frontend:ansible
         imagePullPolicy: Always
+      securityContext:
+        runAsUser: 0
+        privileged: true
       nodeSelector:
         tier: frontend
 ---
@@ -52,6 +55,9 @@ spec:
         imagePullPolicy: Always
       nodeSelector:
         tier: backend
+      securityContext:
+        runAsUser: 0
+        privileged: true
 ---
 kind: Service
 apiVersion: v1
@@ -80,12 +86,5 @@ spec:
         backend:
           service:
             name: frontend
-            port:
-              number: 80
-      - pathType: Prefix
-        path: /backend(/|$)(.*)
-        backend:
-          service:
-            name: backend
             port:
               number: 80
