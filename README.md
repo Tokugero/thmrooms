@@ -31,8 +31,13 @@ An example layout of where this project aims to enable a room maker to inject vu
 ### Dependencies
 
 - Python
-- kubectl
 - Fresh install of Ubuntu 20.04
+
+One K8S Interface
+
+- [KubeCTL OG](https://kubernetes.io/docs/reference/kubectl/)
+- [OpenLens GUI](https://github.com/MuhammedKalkan/OpenLens/releases)
+- [k9s Best of Both Worlds](https://k9scli.io/)
 
 ## Functional Flow
 
