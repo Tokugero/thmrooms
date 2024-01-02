@@ -37,6 +37,42 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: notadmin
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: notadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: notadmin
+    spec:
+      containers:
+      - name: notadmin
+        image: localhost:5000/notadmin:ansible
+        imagePullPolicy: Always
+      nodeSelector:
+        tier: frontend
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: notadmin
+  namespace: default
+spec:
+  selector:
+    app: notadmin
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: backend
   namespace: default
 spec:
