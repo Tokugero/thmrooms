@@ -38,6 +38,13 @@
 #
 #############
 
+- name: Create .kube if not exists
+  become: false
+  delegate_to: localhost
+  file:
+    path: ~/.kube
+    state: directory
+
 - name: Clean kubeconfig
   become: false
   delegate_to: localhost
